@@ -1,9 +1,9 @@
 predictRandomForest <- function(outputDir, 
                                 trainingDf, 
                                 completeDf, 
-                                zones, 
-                                horizons, 
-                                NCores = 8, 
+                                zones,
+                                temperatures,
+                                horizons,  
                                 PlotResult = TRUE){
     require('rminer')
     #require('randomForest')
@@ -21,10 +21,7 @@ predictRandomForest <- function(outputDir,
     nTestingPeriods = length(startDates)
     
     #Create Temperature and Time Features
-    completeDf$SmoT = completeDf$T01
-    for (i in 2:length(completeDf$T01)){
-        completeDf$SmoT[i] = 0.15*completeDf$T01[i] + 0.85*completeDf$SmoT[i-1]
-    }
+    
     completeDf = completeDf %>% mutate(ToD = factor(hour(completeDf$DateTime)), 
                                        DoW = factor(wday(completeDf$DateTime)))
     
@@ -33,11 +30,29 @@ predictRandomForest <- function(outputDir,
     season1 = 24; #Hourly seasonal
     season2 = 24*7; #Weekly seasonal
     for (zone in zones){
+        #Find the best correlated temperature with current zone
+        maxCor = -1
+        bestTemp = temperatures[[1]]
+        for (temp in temperatures){
+            correlation = cor(completeDf[[zone]], completeDf[[temp]])
+            if (correlation > maxCor){
+                maxCor = correlation
+                bestTemp = temp
+            }
+        }
+        
+        completeDf$T = completeDf[[bestTemp]]
+        completeDf$SmoT = completeDf$T
+        completeDf$SmoT = completeDf$T
+        for (i in 2:length(completeDf$T)){
+            completeDf$SmoT[i] = 0.15*completeDf$T[i] + 0.85*completeDf$SmoT[i-1]
+        }
+        
         for (h in horizons){
             LagList = unique(c(h, h+1, h+2, h+3, h+4, season1, season1*2, season1*3, season2, season2*2))
             lossedRows = max(LagList)
             featureDf = CasesSeries(completeDf[[zone]], W = LagList)
-            for (feature in c("DateTime", "ToD", "DoW", "T01", "SmoT")){
+            for (feature in c("DateTime", "ToD", "DoW", "T", "SmoT")){
                 featureDf[[feature]] = tail(completeDf[[feature]], -lossedRows)
             }
 
