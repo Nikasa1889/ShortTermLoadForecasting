@@ -90,8 +90,8 @@ predictRandomForest <- function(outputDir,
                     cond = year(zoneDf$DateTime),
                     arrange = "wide",
                     main = paste("RandomForest Prediction", zone, "horizon", h))
-                    dev.off()
                 }
+                dev.off()
             }
     }
 }
