@@ -1,5 +1,5 @@
-# Automatic approaches for Short-Term Load Forecasting (STLF)
-This is an experiment to test accuracy and speed of various forecasting method for STLF. The experiment use 40 time-series, 20 from GEF2012Com and 20 from Hvaler substations. Code is written in R, tested in jupyter, and run on [r-notebooks docker](https://hub.docker.com/r/jupyter/r-notebook/). R packages can be downloaded easily using install.packages() command.
+# Automatic approaches for Short-Term Load Forecasting
+This is an experiment to test accuracy and speed of various forecasting method for Short-Term Load Forecasting (STLF). The experiment use 40 time-series, 20 from GEF2012Com and 20 from Hvaler substations. Code is written in R, tested in jupyter, and run on [r-notebooks docker](https://hub.docker.com/r/jupyter/r-notebook/). R packages can be downloaded easily using install.packages() command.
 
 To easily distingush different zones, we name zones in the two datasets differently:
 * Zones in GEF2012Com dataset are called zone.1 to zone.20
