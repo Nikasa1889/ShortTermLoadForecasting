@@ -3,7 +3,8 @@ predictRandomForest <- function(outputDir,
                                 completeDf, 
                                 zones,
                                 temperatures,
-                                horizons,  
+                                horizons,
+                                nDataPoints = -1,
                                 PlotResult = FALSE){
     require('rminer')
     #require('randomForest')
@@ -60,7 +61,9 @@ predictRandomForest <- function(outputDir,
                 startDate = startDates[period]
                 endDate = endDates[period]
                 trainData = featureDf %>% filter(DateTime < startDate) %>% select (-DateTime)
-
+                if (nDataPoints > 0){
+                    trainData = tail(trainData, nDataPoints)
+                }
                 #Split randomForest into #cores processes, then combine using the given function
                 #ptm = proc.time()
                 
@@ -68,7 +71,7 @@ predictRandomForest <- function(outputDir,
                 #            set.seed(y)
                 #            randomForest(y ~., trainData, ntree = 400/NCores, sampsize=5000, 
                 #                         do.trace=FALSE, norm.votes=FALSE, proximity=FALSE)}#, nodesize=10)}
-                model = ranger(y ~ ., trainData, sample.fraction=5000/nrow(trainData))
+                model = ranger(y ~ ., trainData, sample.fraction=min(5000/nrow(trainData), 1))
                 #print(proc.time() - ptm)
 
                 testData = featureDf %>% filter ((DateTime >= startDate) & (DateTime <= endDate)) %>% select (-DateTime)
@@ -79,7 +82,7 @@ predictRandomForest <- function(outputDir,
     }
     #Write out result, possibly plot result
     for (h in horizons){
-            csvFile = paste0(outputDir, "randomforest_horizon_", as.character(h), ".csv")
+            csvFile = paste0(outputDir, "randomforest", as.character(nDataPoints), "_horizon_", as.character(h), ".csv")
             write.csv(predictions[[h]], csvFile, row.names=FALSE)
             if (PlotResult){
                 pdf(paste0(outputDir, "Visualizations/", "randomforest_horizon_", as.character(h), ".pdf"),width=7,height=5)
