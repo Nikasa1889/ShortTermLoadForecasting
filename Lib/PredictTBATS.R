@@ -5,8 +5,8 @@ predictTBATS <- function(outputDir,
                         horizons,
                         PlotResult = FALSE){
     
-    library("forecast")
-    library("xts")
+    stopifnot(require("forecast"))
+    stopifnot(require("xts"))
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))

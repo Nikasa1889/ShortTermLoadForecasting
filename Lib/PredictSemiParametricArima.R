@@ -5,13 +5,13 @@ predictSemiParametricArima <- function(outputDir,
                                 temperatures,
                                 horizons,  
                                 PlotResult = FALSE){
-    require('KernSmooth')
-    require('bbemkr')
-    require('mgcv')
-    require('timeDate')
-    require("MASS")
-    require('forecast')
-    require('dplyr')
+    stopifnot(require('KernSmooth'))
+    stopifnot(require('bbemkr'))
+    stopifnot(require('mgcv'))
+    stopifnot(require('timeDate'))
+    stopifnot(require("MASS"))
+    stopifnot(require('forecast'))
+    stopifnot(require('dplyr'))
 
     
     #Identify where are the start and end of the prediction periods by shifting index of NA

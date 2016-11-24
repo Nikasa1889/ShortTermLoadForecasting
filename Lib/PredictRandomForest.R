@@ -6,12 +6,9 @@ predictRandomForest <- function(outputDir,
                                 horizons,
                                 nDataPoints = -1,
                                 PlotResult = FALSE){
-    require('rminer')
-    #require('randomForest')
-    require('ranger')
-    #library(doMC)
+    stopifnot(require('rminer'))
+    stopifnot(require('ranger'))
     source("Lib/strip.R")
-    #registerDoMC(NCores)
     
     #Identify where are the start and end of the prediction periods by shifting index of NA
     idxNaCases = !complete.cases(trainingDf)

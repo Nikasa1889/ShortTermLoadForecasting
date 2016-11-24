@@ -5,8 +5,8 @@ predictDSHW <- function(outputDir,
                         horizons,
                         modifiedDSHW = FALSE,
                         PlotResult = FALSE){
-    library("forecast")
-    library("xts")
+    stopifnot(require("forecast"))
+    stopifnot(require("xts"))
     if (modifiedDSHW){
         source("Lib/ModifiedDSHW.R")
         methodName = "ModifiedDSHW"
