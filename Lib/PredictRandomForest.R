@@ -94,4 +94,5 @@ predictRandomForest <- function(outputDir,
                 dev.off()
             }
     }
+    return (predictions)
 }

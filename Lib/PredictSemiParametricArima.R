@@ -136,6 +136,7 @@ predictSemiParametricArima <- function(outputDir,
             dev.off()
         }
     }
+    return (predictions)
 }
 
 longTermTrend <- function(E, T, DateTime, BANDWIDTH=12){

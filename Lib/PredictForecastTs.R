@@ -1,19 +1,12 @@
-predictDSHW <- function(outputDir, 
+predictForecastTs <- function(outputDir, 
                         trainingDf, 
                         completeDf, 
                         zones,
                         horizons,
-                        modifiedDSHW = FALSE,
                         PlotResult = FALSE){
+    
     library("forecast")
     library("xts")
-    if (modifiedDSHW){
-        source("Lib/ModifiedDSHW.R")
-        methodName = "ModifiedDSHW"
-    } else{
-        methodName = "OriginalDSHW"
-        source("Lib/OriginalDSHW.R")
-    }
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -21,11 +14,10 @@ predictDSHW <- function(outputDir,
     startDates = trainingDf$DateTime[startPoints]
     endDates = trainingDf$DateTime[endPoints]
     nTestingPeriods = length(startDates)
-    
-    
+        
+    #Start prediction
     xtsDf = xts(x = completeDf[, -1], order.by = completeDf[, 1])
     maxHorizons = max(horizons)
-    maxPoint = nrow(trainingDf)
     #Build models and make predictions
     predictions = rep(list(trainingDf), max(horizons));
     season1 = 24; #Hourly seasonal
@@ -37,10 +29,11 @@ predictDSHW <- function(outputDir,
             endPoint = endPoints[period]
             startTrainingPoint = startPoint - 12*season2 #Only get 3 months of data for training
             trainXts = xts[startTrainingPoint:(startPoint-1)]
-            model = dshw(trainXts, season1, season2, h=season1)
+            model = forecast(drop(coredata(trainXts)), find.frequency=TRUE)
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
-                prediction = dshw(testXts, h=maxHorizons, model = model)$mean
+                refit = forecast(drop(coredata(testXts)), model=model)
+                prediction = forecast(refit, h=maxHorizons)$mean
                 for (h in horizons){
                     if (currentPoint+h-1 <= endPoint){
                        predictions[[h]][currentPoint+h-1, zone] = prediction[h]
@@ -50,9 +43,9 @@ predictDSHW <- function(outputDir,
             }
         }
     }
-
+    
     for (h in horizons){
-            csvFile = paste0(outputDir, methodName, "_horizon_", as.character(h), ".csv")
+            csvFile = paste0(outputDir, "TBATS_horizon_", as.character(h), ".csv")
             write.csv(predictions[[h]], csvFile, row.names=FALSE)
     }
     return (predictions)
