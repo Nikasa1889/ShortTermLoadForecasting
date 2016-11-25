@@ -23,9 +23,9 @@ predictTBATSParallel <- function(outputDir,
         return(result)
     }
     
-    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
-                    predictTBATS <- function(outputDir, trainingDf, completeDf, 
-                                zones, horizons,  plotResult, saveResult = FALSE){
+    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar%
+                        predictTBATS(outputDir, trainingDf, completeDf, 
+                                zones, horizons,  plotResult, saveResult = FALSE)
     stopImplicitCluster()
     
     if (saveResult){

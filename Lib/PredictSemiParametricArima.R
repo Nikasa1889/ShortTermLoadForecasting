@@ -25,8 +25,8 @@ predictSemiParametricArimaParallel <- function(outputDir,
     }
     
     predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
-                    predictSemiParametricArima <- function(outputDir, trainingDf, completeDf, 
-                                zones, temperatures, horizons,  plotResult, saveResult = FALSE){
+                    predictSemiParametricArima(outputDir, trainingDf, completeDf, 
+                                zones, temperatures, horizons,  plotResult, saveResult = FALSE)
     stopImplicitCluster()
     
     if (saveResult){
