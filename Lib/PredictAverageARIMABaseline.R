@@ -1,9 +1,44 @@
+#Parallelize over zones
+predictAverageARIMABaselineParallel <- function(outputDir, 
+                        trainingDf, 
+                        completeDf, 
+                        zones,
+                        horizons,
+                        NCores = 8,
+                        plotResult = FALSE,
+                        saveResult = TRUE){
+    stopifnot(require("doParallel"))
+    stopifnot(require("foreach"))
+    registerDoParallel(NCores)
+
+    combinePredictions <- function (predictions1, predictions2){
+        result = predictions1
+        for (h in horizons){
+            for (zone in zones){
+                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
+            }
+        }
+        return(result)
+    }
+    
+    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
+                    predictAverageARIMABaseline(outputDir, trainingDf, completeDf, zones, horizons, 
+                                                plotResult = FALSE, saveResult = FALSE)
+    stopImplicitCluster()
+    
+    if (saveResult){
+        saveResult(predictions, horizons, outputDir)
+    }
+}
+
+#Function for make prediction
 predictAverageARIMABaseline <- function(outputDir, 
                         trainingDf, 
                         completeDf, 
                         zones,
                         horizons,
-                        PlotResult = FALSE){
+                        plotResult = FALSE,
+                        saveResult = FALSE){
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
     #Extract testing period
@@ -49,7 +84,9 @@ predictAverageARIMABaseline <- function(outputDir,
             #Run Arima here
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[idxTrainHours]
-            model = auto.arima(trainXts)
+                #model = auto.arima(trainXts, num.cores=8, parallel=TRUE)
+                #model = Arima(trainXts, order = c(3, 0, 3))
+            model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
             #order = arimaorder(model) Maybe need to save the order to reduce computation
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
@@ -64,10 +101,14 @@ predictAverageARIMABaseline <- function(outputDir,
             }
         }
     }
-
-    for (h in horizons){
-            csvFile = paste0(outputDir, "averageARIMA_horizon_", as.character(h), ".csv")
-            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+    if (saveResult){
+        saveResult(predictions, horizons, outputDir)
     }
     return (predictions)
+}
+saveResult <- function (predictions, horizons, outputDir){
+    for (h in horizons){
+        csvFile = paste0(outputDir, "averageARIMA_horizon_", as.character(h), ".csv")
+        write.csv(predictions[[h]], csvFile, row.names=FALSE)
+    }
 }

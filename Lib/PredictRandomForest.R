@@ -5,7 +5,8 @@ predictRandomForest <- function(outputDir,
                                 temperatures,
                                 horizons,
                                 nDataPoints = -1,
-                                PlotResult = FALSE){
+                                plotResult = FALSE,
+                                saveResult = TRUE){
     stopifnot(require('rminer'))
     stopifnot(require('ranger'))
     source("Lib/strip.R")
@@ -79,20 +80,24 @@ predictRandomForest <- function(outputDir,
     }
     #Write out result, possibly plot result
     for (h in horizons){
+        if (saveResult){
             csvFile = paste0(outputDir, "randomforest", as.character(nDataPoints), "_horizon_", as.character(h), ".csv")
             write.csv(predictions[[h]], csvFile, row.names=FALSE)
-            if (PlotResult){
-                pdf(paste0(outputDir, "Visualizations/", "randomforest_horizon_", as.character(h), ".pdf"),width=7,height=5)
-                zoneDf = predictions[[h]]
-                for (zone in zones){
-                    strip(x = zoneDf[[zone]], 
-                    date = zoneDf$DateTime,
-                    cond = year(zoneDf$DateTime),
-                    arrange = "wide",
-                    main = paste("RandomForest Prediction", zone, "horizon", h))
-                }
-                dev.off()
+        }
+        if (plotResult){
+            pdf(paste0(outputDir, "Visualizations/", "randomforest_horizon_", as.character(h), ".pdf"),width=7,height=5)
+            zoneDf = predictions[[h]]
+            for (zone in zones){
+                strip(x = zoneDf[[zone]], 
+                      date = zoneDf$DateTime,
+                      cond = year(zoneDf$DateTime),
+                      arrange = "wide",
+                      main = paste("RandomForest Prediction", zone, "horizon", h))
             }
+            dev.off()
+        }
     }
     return (predictions)
 }
+#Create and alias, since randomForest in ranger package is already parallel
+predictRandomForecastParallel = predictRandomForest

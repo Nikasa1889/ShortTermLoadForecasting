@@ -3,7 +3,8 @@ predictTBATS <- function(outputDir,
                         completeDf, 
                         zones,
                         horizons,
-                        PlotResult = FALSE){
+                        plotResult = FALSE,
+                        saveResult = FALSE){
     
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
@@ -44,9 +45,11 @@ predictTBATS <- function(outputDir,
         }
     }
     
-    for (h in horizons){
-            csvFile = paste0(outputDir, "TBATS_horizon_", as.character(h), ".csv")
-            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+    if (saveResult){
+        for (h in horizons){
+                csvFile = paste0(outputDir, "TBATS_horizon_", as.character(h), ".csv")
+                write.csv(predictions[[h]], csvFile, row.names=FALSE)
+        }
     }
     return (predictions)
 }

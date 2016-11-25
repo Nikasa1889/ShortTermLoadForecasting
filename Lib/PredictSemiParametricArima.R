@@ -4,7 +4,8 @@ predictSemiParametricArima <- function(outputDir,
                                 zones,
                                 temperatures,
                                 horizons,  
-                                PlotResult = FALSE){
+                                plotResult = FALSE,
+                                saveResult = FALSE){
     stopifnot(require('KernSmooth'))
     stopifnot(require('bbemkr'))
     stopifnot(require('mgcv'))
@@ -105,7 +106,7 @@ predictSemiParametricArima <- function(outputDir,
             startTrainingPoint = startPoint - 12*7*24 #Only get 3 months of data for training
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[startTrainingPoint:(startPoint-1)]
-            model = Arima(trainXts, order = c(3, 0, 3))
+            model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
                 refit = Arima(testXts, model=model)
@@ -121,9 +122,11 @@ predictSemiParametricArima <- function(outputDir,
     }
     
     for (h in horizons){
-        csvFile = paste0(outputDir, "SemiParametricArima_horizon_", as.character(h), ".csv")
-        write.csv(predictions[[h]], csvFile, row.names=FALSE)
-        if (PlotResult){
+        if (saveResult) {
+            csvFile = paste0(outputDir, "SemiParametricArima_horizon_", as.character(h), ".csv")
+            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+        }
+        if (plotResult){
             pdf(paste0(outputDir, "Visualizations/", "SemiParametricArima_horizon_", as.character(h), ".pdf"),width=7,height=5)
             zoneDf = predictions[[h]]
             for (zone in zones){

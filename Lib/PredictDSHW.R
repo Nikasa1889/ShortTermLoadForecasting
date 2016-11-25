@@ -1,10 +1,45 @@
+#Parallelize over zones
+predictDSHWParallel <- function(outputDir, 
+                        trainingDf, 
+                        completeDf, 
+                        zones,
+                        horizons,
+                        modifiedDSHW = FALSE,
+                        NCores = 8,
+                        plotResult = FALSE,
+                        saveResult = TRUE){
+    stopifnot(require("doParallel"))
+    stopifnot(require("foreach"))
+    registerDoParallel(NCores)
+
+    combinePredictions <- function (predictions1, predictions2){
+        result = predictions1
+        for (h in horizons){
+            for (zone in zones){
+                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
+            }
+        }
+        return(result)
+    }
+    
+    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
+                    predictDSHW(outputDir, trainingDf, completeDf, zones, horizons, modifiedDSHW, 
+                                                plotResult = FALSE, saveResult = FALSE)
+    stopImplicitCluster()
+    
+    if (saveResult){
+        saveResult(predictions, horizons, outputDir)
+    }
+}
+
 predictDSHW <- function(outputDir, 
                         trainingDf, 
                         completeDf, 
                         zones,
                         horizons,
                         modifiedDSHW = FALSE,
-                        PlotResult = FALSE){
+                        plotResult = FALSE,
+                        saveResult = FALSE){
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
     if (modifiedDSHW){
@@ -50,10 +85,15 @@ predictDSHW <- function(outputDir,
             }
         }
     }
-
-    for (h in horizons){
-            csvFile = paste0(outputDir, methodName, "_horizon_", as.character(h), ".csv")
-            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+    if (saveResult){
+        saveResult(predictions, horizons, outputDir)
     }
     return (predictions)
+}
+
+saveResult <- function (predictions, horizons, outputDir){
+    for (h in horizons){
+                csvFile = paste0(outputDir, methodName, "_horizon_", as.character(h), ".csv")
+                write.csv(predictions[[h]], csvFile, row.names=FALSE)
+    }
 }
