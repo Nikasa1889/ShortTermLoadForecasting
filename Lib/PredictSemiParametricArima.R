@@ -1,3 +1,40 @@
+#Parallelize over zones
+predictSemiParametricArimaParallel <- function(outputDir, 
+                                trainingDf, 
+                                completeDf, 
+                                zones,
+                                temperatures,
+                                horizons, 
+                                NCores = 8,
+                                plotResult = FALSE,
+                                saveResult = TRUE){
+    stopifnot(require("doParallel"))
+    stopifnot(require("foreach"))
+    source("Lib/SavePredictions.R")
+
+    registerDoParallel(NCores)
+
+    combinePredictions <- function (predictions1, predictions2){
+        result = predictions1
+        for (h in horizons){
+            for (zone in zones){
+                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
+            }
+        }
+        return(result)
+    }
+    
+    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
+                    predictSemiParametricArima <- function(outputDir, trainingDf, completeDf, 
+                                zones, temperatures, horizons,  plotResult, saveResult = FALSE){
+    stopImplicitCluster()
+    
+    if (saveResult){
+        savePredictions("SemiParametricArima", predictions, horizons, outputDir)
+    }
+}
+
+
 predictSemiParametricArima <- function(outputDir, 
                                 trainingDf, 
                                 completeDf, 
