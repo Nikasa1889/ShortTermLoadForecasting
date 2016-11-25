@@ -13,7 +13,7 @@ predictSemiParametricArima <- function(outputDir,
     stopifnot(require("MASS"))
     stopifnot(require('forecast'))
     stopifnot(require('dplyr'))
-
+    source("Lib/SavePredictions.R")
     
     #Identify where are the start and end of the prediction periods by shifting index of NA
     idxNaCases = !complete.cases(trainingDf)
@@ -123,8 +123,7 @@ predictSemiParametricArima <- function(outputDir,
     
     for (h in horizons){
         if (saveResult) {
-            csvFile = paste0(outputDir, "SemiParametricArima_horizon_", as.character(h), ".csv")
-            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+            savePredictions("SemiParametricArima", predictions, horizons, outputDir)
         }
         if (plotResult){
             pdf(paste0(outputDir, "Visualizations/", "SemiParametricArima_horizon_", as.character(h), ".pdf"),width=7,height=5)

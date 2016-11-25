@@ -10,6 +10,7 @@ predictDSHWParallel <- function(outputDir,
                         saveResult = TRUE){
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
+    source("Lib/SavePredictions.R")
     registerDoParallel(NCores)
 
     combinePredictions <- function (predictions1, predictions2){
@@ -27,8 +28,9 @@ predictDSHWParallel <- function(outputDir,
                                                 plotResult = FALSE, saveResult = FALSE)
     stopImplicitCluster()
     
+    methodName = ifelse(modifiedDSHW, "ModifiedDSHW", "OriginalDSHW")    
     if (saveResult){
-        saveResult(predictions, horizons, outputDir)
+        savePredictions(methodName, predictions, horizons, outputDir)
     }
 }
 
@@ -42,6 +44,8 @@ predictDSHW <- function(outputDir,
                         saveResult = FALSE){
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
+    source("Lib/SavePredictions.R")
+
     if (modifiedDSHW){
         source("Lib/ModifiedDSHW.R")
         methodName = "ModifiedDSHW"
@@ -86,14 +90,7 @@ predictDSHW <- function(outputDir,
         }
     }
     if (saveResult){
-        saveResult(predictions, horizons, outputDir)
+        savePredictions(methodName, predictions, horizons, outputDir)
     }
     return (predictions)
-}
-
-saveResult <- function (predictions, horizons, outputDir){
-    for (h in horizons){
-                csvFile = paste0(outputDir, methodName, "_horizon_", as.character(h), ".csv")
-                write.csv(predictions[[h]], csvFile, row.names=FALSE)
-    }
 }

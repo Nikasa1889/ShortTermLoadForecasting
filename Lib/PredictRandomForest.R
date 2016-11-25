@@ -10,7 +10,8 @@ predictRandomForest <- function(outputDir,
     stopifnot(require('rminer'))
     stopifnot(require('ranger'))
     source("Lib/strip.R")
-    
+    source("Lib/SavePredictions.R")
+
     #Identify where are the start and end of the prediction periods by shifting index of NA
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -81,8 +82,7 @@ predictRandomForest <- function(outputDir,
     #Write out result, possibly plot result
     for (h in horizons){
         if (saveResult){
-            csvFile = paste0(outputDir, "randomforest", as.character(nDataPoints), "_horizon_", as.character(h), ".csv")
-            write.csv(predictions[[h]], csvFile, row.names=FALSE)
+            savePredictions("randomforest", predictions, horizons, outputDir)
         }
         if (plotResult){
             pdf(paste0(outputDir, "Visualizations/", "randomforest_horizon_", as.character(h), ".pdf"),width=7,height=5)

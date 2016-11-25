@@ -8,6 +8,7 @@ predictTBATS <- function(outputDir,
     
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
+    source("Lib/SavePredictions.R")
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -47,8 +48,7 @@ predictTBATS <- function(outputDir,
     
     if (saveResult){
         for (h in horizons){
-                csvFile = paste0(outputDir, "TBATS_horizon_", as.character(h), ".csv")
-                write.csv(predictions[[h]], csvFile, row.names=FALSE)
+            savePredictions("TBATS", predictions, horizons, outputDir)
         }
     }
     return (predictions)

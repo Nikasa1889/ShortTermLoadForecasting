@@ -9,6 +9,8 @@ predictAverageARIMABaselineParallel <- function(outputDir,
                         saveResult = TRUE){
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
+    source("Lib/SavePredictions.R")
+
     registerDoParallel(NCores)
 
     combinePredictions <- function (predictions1, predictions2){
@@ -27,7 +29,7 @@ predictAverageARIMABaselineParallel <- function(outputDir,
     stopImplicitCluster()
     
     if (saveResult){
-        saveResult(predictions, horizons, outputDir)
+        savePredictions("averageARIMA", predictions, horizons, outputDir)
     }
 }
 
@@ -41,6 +43,8 @@ predictAverageARIMABaseline <- function(outputDir,
                         saveResult = FALSE){
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
+    source("Lib/SavePredictions.R")
+
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -102,13 +106,7 @@ predictAverageARIMABaseline <- function(outputDir,
         }
     }
     if (saveResult){
-        saveResult(predictions, horizons, outputDir)
+        savePredictions("averageARIMA", predictions, horizons, outputDir)
     }
     return (predictions)
-}
-saveResult <- function (predictions, horizons, outputDir){
-    for (h in horizons){
-        csvFile = paste0(outputDir, "averageARIMA_horizon_", as.character(h), ".csv")
-        write.csv(predictions[[h]], csvFile, row.names=FALSE)
-    }
 }
