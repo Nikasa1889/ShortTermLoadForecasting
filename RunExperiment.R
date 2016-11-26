@@ -54,30 +54,30 @@ if ("AverageARIMA" %in% methodNames){
     prettyPrint(paste("Running", "AverageARIMA"))               
     time = system.time(predictAverageARIMABaselineParallel(OutputDir, trainingDf, completeDf, Zones, 
                                                        Horizons, NCores = NCores, saveResult = TRUE))
-    prettyPrint(time)
+    #prettyPrint(time)
 }
 if ("DSHW" %in% methodNames){
     prettyPrint(paste("Running", "DSHW"))  
     time = system.time(predictDSHWParallel(OutputDir, trainingDf, completeDf, Zones, 
                                        Horizons, modifiedDSHW=FALSE, saveResult = TRUE))
-    prettyPrint(time)
+    #prettyPrint(time)
 }
 if ("ModifiedDSHW" %in% methodNames){
     prettyPrint(paste("Running", "ModifiedDSHW"))  
     time = system.time(predictDSHWParallel(OutputDir, trainingDf, completeDf, Zones, 
                                        Horizons, modifiedDSHW=TRUE, NCores = NCores, saveResult = TRUE))
-    prettyPrint(time)
+    #prettyPrint(time)
 } 
 if ("SemiParametric" %in% methodNames){
     prettyPrint(paste("Running", "SemiParametric"))  
     time = system.time(predictSemiParametricArimaParallel(OutputDir, trainingDf, completeDf, 
                                                           Zones, Temperatures, Horizons, NCores = NCores, saveResult = TRUE))
-    prettyPrint(time)
+    #prettyPrint(time)
 }
 if ("TBATS" %in% methodNames){
     prettyPrint(paste("Running", "TBATS"))  
     time = system.time(predictTBATSParallel(OutputDir, trainingDf, completeDf, Zones, Horizons, NCores = NCores, saveResult=TRUE))
-    prettyPrint(time)
+    #prettyPrint(time)
 } 
 
 sink()
