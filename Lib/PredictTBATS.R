@@ -64,7 +64,8 @@ predictTBATS <- function(outputDir,
             endPoint = endPoints[period]
             startTrainingPoint = startPoint - 12*season2 #Only get 3 months of data for training
             trainXts = xts[startTrainingPoint:(startPoint-1)]
-            model = tbats(drop(coredata(trainXts)), seasonal.periods = 24, use.box.cox = TRUE, num.cores = 8)
+            model = tbats(drop(coredata(trainXts)), seasonal.periods = 24, 
+                          use.box.cox = TRUE, use.parallel = FALSE, num.cores = 1)
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
                 refit = tbats(drop(coredata(testXts)), model=model)
@@ -76,7 +77,8 @@ predictTBATS <- function(outputDir,
                 }            
                 testXts = c(testXts, xts[currentPoint])
             }
-            prettyPrint(paste0("TBATS|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0("TBATS|", zone, "|period ", period, "|Done in ", 
+                               as.numeric(Sys.time()-startTime, units = "secs")));
         }
     }
     
