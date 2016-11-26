@@ -36,6 +36,9 @@ predictTBATS <- function(outputDir,
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
     source("Lib/SavePredictions.R")
+    #Setup loging file
+    source("Lib/SetupLog.R")
+
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -54,6 +57,8 @@ predictTBATS <- function(outputDir,
     for (zone in zones){
         xts = xtsDf[, zone]
         for (period in seq(1, nTestingPeriods)){
+            startTime = Sys.time()
+
             startPoint = startPoints[period]
             endPoint = endPoints[period]
             startTrainingPoint = startPoint - 12*season2 #Only get 3 months of data for training
@@ -70,6 +75,7 @@ predictTBATS <- function(outputDir,
                 }            
                 testXts = c(testXts, xts[currentPoint])
             }
+            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }
     }
     

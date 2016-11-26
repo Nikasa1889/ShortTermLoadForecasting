@@ -42,8 +42,12 @@ predictSemiParametricArima <- function(outputDir,
     stopifnot(require("MASS"))
     stopifnot(require('forecast'))
     stopifnot(require('dplyr'))
-    source("Lib/SavePredictions.R")
+    stopifnot(require('lubridate'))
     
+    source("Lib/SavePredictions.R")
+    #Setup loging file
+    source("Lib/SetupLog.R")
+
     #Identify where are the start and end of the prediction periods by shifting index of NA
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -101,7 +105,9 @@ predictSemiParametricArima <- function(outputDir,
 
         featureDf$LT = rep(0, nrow(featureDf))
         featureDf$Residuals = rep(0, nrow(featureDf)) #This is used to train an Arima on residuals
-        for (period in seq(1, nTestingPeriods)){ 
+        for (period in seq(1, nTestingPeriods)){
+            startTime = Sys.time()
+            
             #Prepare for training model
             startDate = startDates[period]
             endDate = endDates[period]
@@ -147,6 +153,8 @@ predictSemiParametricArima <- function(outputDir,
                 }            
                 testXts = c(testXts, xts[currentPoint])
             }
+            
+            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }  
     }
     

@@ -11,7 +11,8 @@ predictRandomForest <- function(outputDir,
     stopifnot(require('ranger'))
     source("Lib/strip.R")
     source("Lib/SavePredictions.R")
-
+    #Setup loging file
+    source("Lib/SetupLog.R")
     #Identify where are the start and end of the prediction periods by shifting index of NA
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -57,6 +58,8 @@ predictRandomForest <- function(outputDir,
             }
 
             for (period in seq(1, nTestingPeriods)){
+                startTime = Sys.time()
+
                 startDate = startDates[period]
                 endDate = endDates[period]
                 trainData = featureDf %>% filter(DateTime < startDate) %>% select (-DateTime)
@@ -76,6 +79,8 @@ predictRandomForest <- function(outputDir,
                 testData = featureDf %>% filter ((DateTime >= startDate) & (DateTime <= endDate)) %>% select (-DateTime)
                 prediction = predict(model, testData)$predictions #Remove $predictions with randomForest
                 predictions[[h]][(completeDf$DateTime >= startDate) & (completeDf$DateTime <= endDate), zone] = prediction
+                
+                prettyPrint(paste0(zone, "|period ", period, "|horizon ", h, "|Done in ", (Sys.time()-startTime)[[1]]));
             }
         }
     }

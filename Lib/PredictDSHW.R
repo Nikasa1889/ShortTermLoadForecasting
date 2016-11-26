@@ -11,6 +11,7 @@ predictDSHWParallel <- function(outputDir,
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
+    
     registerDoParallel(NCores)
     
     predictions = foreach(zones = zones, 
@@ -37,7 +38,9 @@ predictDSHW <- function(outputDir,
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
     source("Lib/SavePredictions.R")
-
+    #Setup loging file
+    source("Lib/SetupLog.R")
+    
     if (modifiedDSHW){
         source("Lib/ModifiedDSHW.R")
         methodName = "ModifiedDSHW"
@@ -64,6 +67,8 @@ predictDSHW <- function(outputDir,
     for (zone in zones){
         xts = xtsDf[, zone]
         for (period in seq(1, nTestingPeriods)){
+            startTime = Sys.time()
+            
             startPoint = startPoints[period]
             endPoint = endPoints[period]
             startTrainingPoint = startPoint - 12*season2 #Only get 3 months of data for training
@@ -79,6 +84,8 @@ predictDSHW <- function(outputDir,
                 }            
                 testXts = c(testXts, xts[currentPoint])
             }
+            
+            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }
     }
     if (saveResult){

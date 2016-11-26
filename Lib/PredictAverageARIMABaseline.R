@@ -37,7 +37,9 @@ predictAverageARIMABaseline <- function(outputDir,
     stopifnot(require("forecast"))
     stopifnot(require("xts"))
     source("Lib/SavePredictions.R")
-
+    
+    #Setup loging file
+    source("Lib/SetupLog.R")
     #Extract testing period
     idxNaCases = !complete.cases(trainingDf)
     startPoints =  which(idxNaCases & !c(FALSE, head(idxNaCases, -1)) & c(tail(idxNaCases, -1), TRUE))
@@ -57,6 +59,8 @@ predictAverageARIMABaseline <- function(outputDir,
     predictions = rep(list(trainingDf), max(horizons))
     for (zone in zones){
         for (period in seq(1, nTestingPeriods)){
+            startTime = Sys.time()
+            
             startPoint = startPoints[period]
             endPoint = endPoints[period]
             #Make Average Prediction
@@ -96,6 +100,8 @@ predictAverageARIMABaseline <- function(outputDir,
                 }            
                 testXts = c(testXts, xts[currentPoint])
             }
+            
+            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }
     }
     if (saveResult){
