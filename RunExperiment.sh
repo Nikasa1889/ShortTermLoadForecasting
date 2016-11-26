@@ -1,1 +1,1 @@
-R CMD BATCH --no-save --no-restore '--args datasets=c("GEFCOM2012") methodNames=c("ArimaBaseline", "DSHW", "ModifiedDSHW", "SemiParametric") nzones=4' RunExperiment.R RunExperiment.out &
+R CMD BATCH --no-save --no-restore '--args datasets=c("GEFCOM2012") methodNames=c("DSHW","ModifiedDSHW","AverageARIMA","SemiParametric","TBATS") nzones=8' RunExperiment.R RunExperiment.out

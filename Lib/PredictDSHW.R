@@ -11,6 +11,7 @@ predictDSHWParallel <- function(outputDir,
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
+    source("Lib/CombinePredictions.R")
     
     registerDoParallel(NCores)
     
@@ -73,7 +74,9 @@ predictDSHW <- function(outputDir,
             endPoint = endPoints[period]
             startTrainingPoint = startPoint - 12*season2 #Only get 3 months of data for training
             trainXts = xts[startTrainingPoint:(startPoint-1)]
+            sink("/dev/null") #Disable output from dshw function
             model = dshw(trainXts, season1, season2, h=season1)
+            sink()
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
                 prediction = dshw(testXts, h=maxHorizons, model = model)$mean
@@ -85,7 +88,8 @@ predictDSHW <- function(outputDir,
                 testXts = c(testXts, xts[currentPoint])
             }
             
-            prettyPrint(paste0(methodName,"|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0(methodName,"|", zone, "|period ", period, "|Done in ", 
+                               as.numeric(Sys.time()-startTime, units = "secs")));
         }
     }
     if (saveResult){

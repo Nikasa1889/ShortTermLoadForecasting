@@ -11,7 +11,8 @@ predictSemiParametricArimaParallel <- function(outputDir,
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
-
+    source("Lib/CombinePredictions.R")
+    
     registerDoParallel(NCores)
     
     predictions = foreach(zones = zones, 
@@ -138,7 +139,7 @@ predictSemiParametricArima <- function(outputDir,
             #Run Arima here
             startPoint = startPoints[period]
             endPoint = endPoints[period]
-            startTrainingPoint = startPoint - 12*7*24 #Only get 3 months of data for training
+            startTrainingPoint = startPoint - 30*24 #Only get 1 month of data for training
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[startTrainingPoint:(startPoint-1)]
             model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
@@ -154,7 +155,8 @@ predictSemiParametricArima <- function(outputDir,
                 testXts = c(testXts, xts[currentPoint])
             }
             
-            prettyPrint(paste0("semiParametric|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0("semiParametric|", zone, "|period ", period, "|Done in ", 
+                               as.numeric(Sys.time()-startTime, units = "secs")));
         }  
     }
     

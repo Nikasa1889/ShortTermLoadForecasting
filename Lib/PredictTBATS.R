@@ -10,7 +10,8 @@ predictTBATSParallel <- function(outputDir,
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
-
+    source("Lib/CombinePredictions.R")
+    
     registerDoParallel(NCores)
 
     predictions = foreach(zones = zones,
