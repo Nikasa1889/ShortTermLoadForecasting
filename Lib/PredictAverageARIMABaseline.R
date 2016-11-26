@@ -10,21 +10,14 @@ predictAverageARIMABaselineParallel <- function(outputDir,
     stopifnot(require("doParallel"))
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
-
+    source("Lib/CombinePredictions.R")
+        
     registerDoParallel(NCores)
-
-    combinePredictions <- function (predictions1, predictions2){
-        result = predictions1
-        for (h in horizons){
-            for (zone in zones){
-                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
-            }
-        }
-        return(result)
-    }
     
-    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
-                    predictAverageARIMABaseline(outputDir, trainingDf, completeDf, zones, horizons, 
+    predictions = foreach(zones = zones, 
+                          .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2), 
+                          .errorhandling="stop") %dopar% 
+                          predictAverageARIMABaseline(outputDir, trainingDf, completeDf, zones, horizons, 
                                                 plotResult = FALSE, saveResult = FALSE)
     stopImplicitCluster()
     
