@@ -12,19 +12,11 @@ predictDSHWParallel <- function(outputDir,
     stopifnot(require("foreach"))
     source("Lib/SavePredictions.R")
     registerDoParallel(NCores)
-
-    combinePredictions <- function (predictions1, predictions2){
-        result = predictions1
-        for (h in horizons){
-            for (zone in zones){
-                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
-            }
-        }
-        return(result)
-    }
     
-    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar% 
-                    predictDSHW(outputDir, trainingDf, completeDf, zones, horizons, modifiedDSHW, 
+    predictions = foreach(zones = zones, 
+                          .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2),
+                          .errorhandling="remove") %dopar% 
+                          predictDSHW(outputDir, trainingDf, completeDf, zones, horizons, modifiedDSHW, 
                                                 plotResult = FALSE, saveResult = FALSE)
     stopImplicitCluster()
     

@@ -13,18 +13,10 @@ predictTBATSParallel <- function(outputDir,
 
     registerDoParallel(NCores)
 
-    combinePredictions <- function (predictions1, predictions2){
-        result = predictions1
-        for (h in horizons){
-            for (zone in zones){
-                result[[h]][[zone]] = ifelse(!is.na(predictions1[[h]][[zone]]), predictions1[[h]][[zone]], predictions2[[h]][[zone]])
-            }
-        }
-        return(result)
-    }
-    
-    predictions = foreach(zones = zones, .combine=combinePredictions) %dopar%
-                        predictTBATS(outputDir, trainingDf, completeDf, 
+    predictions = foreach(zones = zones,
+                         .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2),
+                         .errorhandling="remove") %dopar%
+                         predictTBATS(outputDir, trainingDf, completeDf, 
                                 zones, horizons,  plotResult, saveResult = FALSE)
     stopImplicitCluster()
     

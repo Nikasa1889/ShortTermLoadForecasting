@@ -16,7 +16,7 @@ predictAverageARIMABaselineParallel <- function(outputDir,
     
     predictions = foreach(zones = zones, 
                           .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2), 
-                          .errorhandling="stop") %dopar% 
+                          .errorhandling="remove") %dopar% 
                           predictAverageARIMABaseline(outputDir, trainingDf, completeDf, zones, horizons, 
                                                 plotResult = FALSE, saveResult = FALSE)
     stopImplicitCluster()
