@@ -16,7 +16,7 @@ predictAverageARIMABaselineParallel <- function(outputDir,
     
     predictions = foreach(zones = zones, 
                           .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2), 
-                          .errorhandling="remove") %dopar% 
+                          .errorhandling="stop") %dopar% 
                           predictAverageARIMABaseline(outputDir, trainingDf, completeDf, zones, horizons, 
                                                 plotResult = FALSE, saveResult = FALSE)
     stopImplicitCluster()
@@ -65,7 +65,7 @@ predictAverageARIMABaseline <- function(outputDir,
             endPoint = endPoints[period]
             #Make Average Prediction
             idxTestHours = startPoint:endPoint
-            arimaTrainingSize = 30*24 # 1 month
+            arimaTrainingSize = 12*7*24 # 1 month
             startTrainingPoint = startPoint - arimaTrainingSize #Only get 1 month of data for training, more than that, optim problem
             idxTrainHours = startTrainingPoint:(startPoint-1)
             idxTotal = c(idxTrainHours, idxTestHours)
@@ -85,16 +85,16 @@ predictAverageARIMABaseline <- function(outputDir,
             #Run Arima here
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[idxTrainHours]
-                #model = auto.arima(trainXts, num.cores=8, parallel=TRUE)
-                #model = Arima(trainXts, order = c(3, 0, 3))
-            model = arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
+            model = auto.arima(as.ts(trainXts), seasonal=TRUE)
+            #model = Arima(trainXts, order = c(3, 0, 3))
+            #model = arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24), method="CSS-ML")
             #order = arimaorder(model) Maybe need to save the order to reduce computation
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
-                #refit = Arima(testXts, model=model)
-                #prediction = forecast(refit, h=maxHorizon)$mean
-                refit = arima(testXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24), fixed = model$coef)
-                prediction = predict(refit, n.ahead = maxHorizon)$pred
+                refit = Arima(as.ts(testXts), model=model)
+                prediction = forecast(refit, h=maxHorizon)$mean
+                #refit = arima(testXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24), fixed = model$coef)
+                #prediction = predict(refit, n.ahead = maxHorizon)$pred
                 for (h in horizons){
                     if (currentPoint+h-1 <= endPoint){
                        predictions[[h]][currentPoint+h-1, zone] = predictions[[h]][currentPoint+h-1, zone] + prediction[h]

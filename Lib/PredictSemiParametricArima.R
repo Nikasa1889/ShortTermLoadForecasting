@@ -17,7 +17,7 @@ predictSemiParametricArimaParallel <- function(outputDir,
     
     predictions = foreach(zones = zones, 
                           .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2),
-                          .errorhandling="remove") %dopar% 
+                          .errorhandling="stop") %dopar% 
                            predictSemiParametricArima(outputDir, trainingDf, completeDf, 
                                 zones, temperatures, horizons,  plotResult, saveResult = FALSE)
     stopImplicitCluster()
@@ -44,6 +44,7 @@ predictSemiParametricArima <- function(outputDir,
     stopifnot(require('forecast'))
     stopifnot(require('dplyr'))
     stopifnot(require('lubridate'))
+    stopifnot(require('xts'))
     
     source("Lib/SavePredictions.R")
     #Setup loging file
@@ -139,10 +140,12 @@ predictSemiParametricArima <- function(outputDir,
             #Run Arima here
             startPoint = startPoints[period]
             endPoint = endPoints[period]
-            startTrainingPoint = startPoint - 30*24 #Only get 1 month of data for training
+            startTrainingPoint = startPoint - 12*7*24 #Only get 3 month of data for training
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[startTrainingPoint:(startPoint-1)]
-            model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
+                        
+            model = auto.arima(trainXts, seasonal=TRUE)
+            #model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
                 refit = Arima(testXts, model=model)
