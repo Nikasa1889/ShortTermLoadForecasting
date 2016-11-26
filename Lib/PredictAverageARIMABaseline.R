@@ -65,8 +65,8 @@ predictAverageARIMABaseline <- function(outputDir,
             endPoint = endPoints[period]
             #Make Average Prediction
             idxTestHours = startPoint:endPoint
-            arimaTraingSize = 12*7*24 # 3 months
-            startTrainingPoint = startPoint - arimaTraingSize #Only get 3 months of data for training
+            arimaTrainingSize = 12*7*24 # 3 months
+            startTrainingPoint = startPoint - arimaTrainingSize #Only get 3 months of data for training
             idxTrainHours = startTrainingPoint:(startPoint-1)
             idxTotal = c(idxTrainHours, idxTestHours)
             idxOneWeekBefore = idxTotal - oneweek
@@ -87,12 +87,16 @@ predictAverageARIMABaseline <- function(outputDir,
             trainXts = xts[idxTrainHours]
                 #model = auto.arima(trainXts, num.cores=8, parallel=TRUE)
                 #model = Arima(trainXts, order = c(3, 0, 3))
-            model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
+            model = arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
             #order = arimaorder(model) Maybe need to save the order to reduce computation
             testXts = trainXts
+            prettyPrint (trainXts)
             for (currentPoint in seq(startPoint, endPoint)){
-                refit = Arima(testXts, model=model)
-                prediction = forecast(refit, h=maxHorizon)$mean
+                prettyPrint(paste("current point:", currentPoint, xts[currentPoint]))
+                #refit = Arima(testXts, model=model)
+                #prediction = forecast(refit, h=maxHorizon)$mean
+                refit = arima(testXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24), fixed = model$coef)
+                prediction = predict(refit, n.ahead = maxHorizon)$pred
                 for (h in horizons){
                     if (currentPoint+h-1 <= endPoint){
                        predictions[[h]][currentPoint+h-1, zone] = predictions[[h]][currentPoint+h-1, zone] + prediction[h]
@@ -101,7 +105,7 @@ predictAverageARIMABaseline <- function(outputDir,
                 testXts = c(testXts, xts[currentPoint])
             }
             
-            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0("averageARIMA|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }
     }
     if (saveResult){

@@ -80,7 +80,7 @@ predictRandomForest <- function(outputDir,
                 prediction = predict(model, testData)$predictions #Remove $predictions with randomForest
                 predictions[[h]][(completeDf$DateTime >= startDate) & (completeDf$DateTime <= endDate), zone] = prediction
                 
-                prettyPrint(paste0(zone, "|period ", period, "|horizon ", h, "|Done in ", (Sys.time()-startTime)[[1]]));
+                prettyPrint(paste0("randomforest|", zone, "|period ", period, "|horizon ", h, "|Done in ", (Sys.time()-startTime)[[1]]));
             }
         }
     }

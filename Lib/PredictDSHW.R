@@ -85,7 +85,7 @@ predictDSHW <- function(outputDir,
                 testXts = c(testXts, xts[currentPoint])
             }
             
-            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0(methodName,"|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }
     }
     if (saveResult){

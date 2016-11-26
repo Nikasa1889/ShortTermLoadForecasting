@@ -154,7 +154,7 @@ predictSemiParametricArima <- function(outputDir,
                 testXts = c(testXts, xts[currentPoint])
             }
             
-            prettyPrint(paste0(zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
+            prettyPrint(paste0("semiParametric|", zone, "|period ", period, "|Done in ", (Sys.time()-startTime)[[1]]));
         }  
     }
     
