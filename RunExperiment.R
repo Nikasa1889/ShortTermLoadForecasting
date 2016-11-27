@@ -81,5 +81,10 @@ if ("TBATS" %in% methodNames){
     time = system.time(predictTBATSParallel(OutputDir, trainingDf, completeDf, Zones, Horizons, NCores = NCores, saveResult=TRUE))
     #prettyPrint(time)
 } 
+if ("RandomForest" %in% methodNames){
+    prettyPrint(paste("Running", "RandomForest")) 
+    time = system.time(predictRandomForest(OutputDir, trainingDf, completeDf, 
+                                           Zones, Temperatures, Horizons, saveResult=TRUE))    
+}
 
 sink()

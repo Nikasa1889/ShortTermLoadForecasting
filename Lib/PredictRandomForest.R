@@ -9,6 +9,7 @@ predictRandomForest <- function(outputDir,
                                 saveResult = TRUE){
     stopifnot(require('rminer'))
     stopifnot(require('ranger'))
+    stopifnot(require('lubridate'))
     source("Lib/strip.R")
     source("Lib/SavePredictions.R")
     #Setup loging file
