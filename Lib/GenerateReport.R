@@ -24,6 +24,7 @@ generateReport <- function (completeDf,
         print(paste("Processing", paste0(predictionDir, file), "..."))
         predictionDf = read.csv(paste0(predictionDir, file), stringsAsFactors=FALSE, colClasses=fileClasses)
         for (zone in zones){
+            testingIdx = testingIdx & head(completeDf[[zone]]>1, length(testingIdx)) #GEFCom2012 completeDf is longer than trainingDf
             if (sum(is.na(predictionDf[[zone]]))<0.2*sum(testingIdx)){
             MAPE = mean(abs(predictionDf[[zone]][testingIdx] - completeDf[[zone]][testingIdx])/completeDf[[zone]][testingIdx],
                         na.rm = TRUE)
