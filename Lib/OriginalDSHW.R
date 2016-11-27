@@ -141,7 +141,7 @@ dshw <- function(y, period1=NULL, period2=NULL, h=period1, alpha=NULL, beta=NULL
     fcast <- InvBoxCox(fcast,lambda)
     yhat <- InvBoxCox(yhat,lambda)
   }
-	print(mape)
+	#print(mape)
   return(structure(list(mean=fcast,method="DSHW",x=y,residuals=e,fitted=yhat,
               model=list(mape=mape,mse=mse,alpha=alpha,beta=beta, gamma=gamma,omega=omega,phi=phi,
                          lambda = lambda, l0=s.start,b0=t.start,s10=wstart,s20=I), period1 = period1,

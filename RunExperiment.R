@@ -26,6 +26,7 @@ NCores = 8
 
 
 if ("Hvaler" %in% datasets) {
+    prettyPrint(paste("Dataset", "Hvaler"))
     Zones = paste0("subs.", seq(1, nzones))#Only test nzones
     Temperatures = c("T01")
     Horizons = seq(1, 24)
@@ -37,6 +38,7 @@ if ("Hvaler" %in% datasets) {
     trainingDf = read.csv(HvalerTrainingFile, stringsAsFactors=FALSE, colClasses=HvalerClasses)
     completeDf = read.csv(HvalerCompleteFile, stringsAsFactors=FALSE, colClasses=HvalerClasses)
 } else if ("GEFCOM2012" %in% datasets){
+    prettyPrint(paste("Dataset", "GEFCOM2012"))
     Zones = paste0("zone.", seq(1, nzones))
     Temperatures = c("T01","T02","T03","T04","T05","T06","T07","T08","T09","T10","T11")
     Horizons = seq(1, 24)

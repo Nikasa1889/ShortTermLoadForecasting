@@ -147,7 +147,7 @@ dshw <- function(y, period1=NULL, period2=NULL, h=period1, alpha=NULL, beta=NULL
   }
   
   fcast <- msts(fcast, c(period1, period2))
-  print(mape)
+  #print(mape)
   if(!is.null(lambda))
   {
     y <- origy

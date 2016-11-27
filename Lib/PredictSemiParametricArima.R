@@ -17,7 +17,7 @@ predictSemiParametricArimaParallel <- function(outputDir,
     
     predictions = foreach(zones = zones, 
                           .combine=function(pred1, pred2) combinePredictions(horizons, zones, pred1, pred2),
-                          .errorhandling="stop") %dopar% 
+                          .errorhandling="remove") %dopar% 
                            predictSemiParametricArima(outputDir, trainingDf, completeDf, 
                                 zones, temperatures, horizons,  plotResult, saveResult = FALSE)
     stopImplicitCluster()
@@ -144,11 +144,11 @@ predictSemiParametricArima <- function(outputDir,
             xts = xts(featureDf$Residuals, featureDf$DateTime)
             trainXts = xts[startTrainingPoint:(startPoint-1)]
                         
-            model = auto.arima(trainXts, seasonal=TRUE)
+            model = auto.arima(as.ts(trainXts), seasonal=TRUE)
             #model = Arima(trainXts, order = c(3, 0, 3), seasonal=list(order=c(3, 0, 3), period = 24))
             testXts = trainXts
             for (currentPoint in seq(startPoint, endPoint)){
-                refit = Arima(testXts, model=model)
+                refit = Arima(as.ts(testXts), model=model)
                 prediction = forecast(refit, h=maxHorizon)$mean
                 for (h in horizons){
                     if (currentPoint+h-1 <= endPoint){
@@ -189,7 +189,9 @@ longTermTrend <- function(E, T, DateTime, BANDWIDTH=12){
     E.month.xts = apply.monthly(E.xts, FUN="mean", na.rm = TRUE)
     I = as.numeric(format(index(E.month.xts), "%m"))
     #I = quarters (index(E.month.xts), "%m")
-    #I = factor(I)
+    if (length(I) > 24){
+        I = factor(I)
+    }
     T = apply.monthly(T.xts[index(E.xts)], FUN="mean", na.rm = TRUE)
     E.model = gam(E.month.xts ~ I + s(T))#ERROR!!
     E.est = E.model$fitted.values
