@@ -23,10 +23,14 @@ To easily distingush different zones, we name zones in the two datasets differen
   * **Predictions/**: contains all predictions stored in csv files (and potentially visualization for predictions)
 * **Lib**: contains all the R functions that used in the experiment
 * **Visualizations**: contains all visualizations of raw data and imputed data
+* **Reports**: contains all report and plots used in the paper, moved here manually
 * **TidyGEFCom2012.ipynb** and **TidyHvaler.ipynb**: tidy dataset
 * **HvalerImputation.ipynb**: impute missing values in Hvaler dataset
 * **MarkTestingPeriod.ipynb**: mark the testing period by NA values
 * **VisualizeData.ipynb**: visualize data
 * **MakePrediction.ipynb**: call various predict functions in Lib/ to make prediction
-* **MeasurePerformance.ipynb**: scan predictions folder in GEFCom2012 and Hvaler to automatically report performance
+* **RunExperiment.R**: script that receive arguments and run prediction based on selected dataset, zones, and methods. Everything report to RunExperiment.out and RunExperiment.log
+* **RunExperiment.sh**: sh script to demo how you can call RunExperiment.R
+* **ReportPerformance.ipynb**: scan predictions folder in GEFCom2012 and Hvaler to automatically report performance and plots
+* **ReportRunningTime.ipynb**: scan the RunExperiment.log files to produce report and plot on running time of different methods
 * **subs.1.traingdata.pdf** and **zone.1.trainingdata.pdf**: plot shows data example with testing period marked
